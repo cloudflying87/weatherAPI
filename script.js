@@ -1,55 +1,80 @@
+
+// This makes sure that the document is fully loaded before running any of our script. 
 $(document).ready(function() {
+  // Event listener for the search button. Listening for the click. 
   $("#search-button").on("click", function() {
+    // saving the city searched for to be used in the other functions. Getting it from the input box, with the ID search value. 
     var searchValue = $("#search-value").val();
 
-    // clear input box
+    // clear input box. So there is no more text left once search is clicked. 
     $("#search-value").val("");
 
+    // calling the search weather function and passing in the searchValue variable when calling it. 
     searchWeather(searchValue);
   });
-
+  // Event listener for the history list. 
   $(".history").on("click", "li", function() {
+    // Using the 'this' key word to get which ever city was clicked and then passing that into the search weather function like above. 
     searchWeather($(this).text());
   });
-
+// using this function to be able to append cities to the list. 
   function makeRow(text) {
+    // This adds each city to the list by adding list items. 
     var li = $("<li>").addClass("list-group-item list-group-item-action").text(text);
+    // here we append the newly made item above to the history list. 
     $(".history").append(li);
   }
-
+// The main seach weather function. 
   function searchWeather(searchValue) {
+    // Here is our ajax opener. 
     $.ajax({
+      // Or request type from the server. 
       type: "GET",
-      url: "http://api.openweathermap.org/data/2.5/weather?q=" + searchValue + "&appid=7ba67ac190f85fdba2e2dc6b9d32e93c&units=imperial",
+      // the call to the openweathermap with our own API. We are also passing in our search value from the input box above. 
+      url: "http://api.openweathermap.org/data/2.5/weather?q=" + searchValue + "&appid=b5e573cd0319e4dd2a82ef44c3a32ecd&units=imperial",
+      // specifying what type of data will be returned from the API 
       dataType: "json",
+      // Waiting to run our function until we have successful return from the API.
       success: function(data) {
         // create history link for this search
         if (history.indexOf(searchValue) === -1) {
+          // pushing the current value to the history array.
           history.push(searchValue);
+          // storing the search locally so that it will persist on the browswer. 
           window.localStorage.setItem("history", JSON.stringify(history));
-    
+          // calling our makeRow function to add the new search to the history list.  
           makeRow(searchValue);
         }
         
         // clear any old content
         $("#today").empty();
 
-        // create html content for current weather
+        // create html content for current weather, each item that we want to return from the API request has to be written to the page. 
+        // This is the city name. 
         var title = $("<h3>").addClass("card-title").text(data.name + " (" + new Date().toLocaleDateString() + ")");
+        // adding a new div with the vlass of card. 
         var card = $("<div>").addClass("card");
+        // writing the windspeed to the card with a new <p> tag. This will put each one of the items on a new line. 
         var wind = $("<p>").addClass("card-text").text("Wind Speed: " + data.wind.speed + " MPH");
+        // add the humidity to the card. 
         var humid = $("<p>").addClass("card-text").text("Humidity: " + data.main.humidity + "%");
+        // adding temp to the card. Same method is used for all three of these items. added to the card text and then the text we want around what we are pulling from the api. 
         var temp = $("<p>").addClass("card-text").text("Temperature: " + data.main.temp + " °F");
+        // adding another div with the card body class. This div is for the image.  
         var cardBody = $("<div>").addClass("card-body");
+        // adding the image for the weather. The image comes from the API. 
         var img = $("<img>").attr("src", "http://openweathermap.org/img/w/" + data.weather[0].icon + ".png");
 
-        // merge and add to page
+        // merge and add to page. above we had just added everything to the card, but had not displayed anything. This code will add the information to be displayed. First item is the image we just created. 
         title.append(img);
+        // Here we append all 4 items to the page. title, temp, humid, wind. If we wanted to add more data this is where we would have to append it to the page as well. 
         cardBody.append(title, temp, humid, wind);
+        // adding the card so that everything can be displayed. Without the card that we have created none of the information will be displayed. 
         card.append(cardBody);
+        // append the card to the today id tag on the html page. line 33. 
         $("#today").append(card);
 
-        // call follow-up api endpoints
+        // call follow-up api endpoints.
         getForecast(searchValue);
         getUVIndex(data.coord.lat, data.coord.lon);
       }
@@ -59,7 +84,7 @@ $(document).ready(function() {
   function getForecast(searchValue) {
     $.ajax({
       type: "GET",
-      url: "http://api.openweathermap.org/data/2.5/forecast?q=" + searchValue + "&appid=7ba67ac190f85fdba2e2dc6b9d32e93c&units=imperial",
+      url: "http://api.openweathermap.org/data/2.5/forecast?q=" + searchValue + "&appid=b5e573cd0319e4dd2a82ef44c3a32ecd&units=imperial",
       dataType: "json",
       success: function(data) {
         // overwrite any existing content with title and empty row
@@ -93,7 +118,7 @@ $(document).ready(function() {
   function getUVIndex(lat, lon) {
     $.ajax({
       type: "GET",
-      url: "http://api.openweathermap.org/data/2.5/uvi?appid=7ba67ac190f85fdba2e2dc6b9d32e93c&lat=" + lat + "&lon=" + lon,
+      url: "http://api.openweathermap.org/data/2.5/uvi?appid=b5e573cd0319e4dd2a82ef44c3a32ecd&lat=" + lat + "&lon=" + lon,
       dataType: "json",
       success: function(data) {
         var uv = $("<p>").text("UV Index: ");
