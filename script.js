@@ -89,7 +89,7 @@ function findCity(lat, lon) {
       // Or request type from the server. 
       type: "GET",
       // the call to the openweathermap with our own API. We are also passing in our search value from the input box above. 
-      url: "http://api.openweathermap.org/data/2.5/weather?q=" + searchValue + "&appid=b5e573cd0319e4dd2a82ef44c3a32ecd&units=imperial",
+      url: "https://api.openweathermap.org/data/2.5/weather?q=" + searchValue + "&appid=b5e573cd0319e4dd2a82ef44c3a32ecd&units=imperial",
       // specifying what type of data will be returned from the API 
       dataType: "json",
       // Waiting to run our function until we have successful return from the API.
@@ -121,7 +121,7 @@ function findCity(lat, lon) {
         // adding another div with the card body class. This div is for the image.  
         var cardBody = $("<div>").addClass("card-body");
         // adding the image for the weather. The image comes from the API. 
-        var img = $("<img>").attr("src", "http://openweathermap.org/img/w/" + data.weather[0].icon + ".png");
+        var img = $("<img>").attr("src", "https://openweathermap.org/img/w/" + data.weather[0].icon + ".png");
 
         // merge and add to page. above we had just added everything to the card, but had not displayed anything. This code will add the information to be displayed. First item is the image we just created. 
         title.append(img);
@@ -142,7 +142,7 @@ function findCity(lat, lon) {
   function getForecast(searchValue) {
     $.ajax({
       type: "GET",
-      url: "http://api.openweathermap.org/data/2.5/forecast?q=" + searchValue + "&appid=b5e573cd0319e4dd2a82ef44c3a32ecd&units=imperial",
+      url: "https://api.openweathermap.org/data/2.5/forecast?q=" + searchValue + "&appid=b5e573cd0319e4dd2a82ef44c3a32ecd&units=imperial",
       dataType: "json",
       success: function (data) {
         // overwrite any existing content with title and empty row
@@ -159,7 +159,7 @@ function findCity(lat, lon) {
 
             var title = $("<h5>").addClass("card-title").text(new Date(data.list[i].dt_txt).toLocaleDateString());
 
-            var img = $("<img>").attr("src", "http://openweathermap.org/img/w/" + data.list[i].weather[0].icon + ".png");
+            var img = $("<img>").attr("src", "https://openweathermap.org/img/w/" + data.list[i].weather[0].icon + ".png");
 
             var p1 = $("<p>").addClass("card-text").text("Temp: " + data.list[i].main.temp_max + " °F");
             var p2 = $("<p>").addClass("card-text").text("Humidity: " + data.list[i].main.humidity + "%");
@@ -176,7 +176,7 @@ function findCity(lat, lon) {
   function getUVIndex(lat, lon) {
     $.ajax({
       type: "GET",
-      url: "http://api.openweathermap.org/data/2.5/uvi?appid=b5e573cd0319e4dd2a82ef44c3a32ecd&lat=" + lat + "&lon=" + lon,
+      url: "https://api.openweathermap.org/data/2.5/uvi?appid=b5e573cd0319e4dd2a82ef44c3a32ecd&lat=" + lat + "&lon=" + lon,
       dataType: "json",
       success: function (data) {
         var uv = $("<p>").text("UV Index: ");
@@ -205,7 +205,7 @@ function findCity(lat, lon) {
     //nullify the search history array
     history = {};
   });
-  
+
   // get current history, if any
   var history = JSON.parse(window.localStorage.getItem("history")) || [];
 
