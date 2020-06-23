@@ -74,13 +74,14 @@ $(document).ready(function() {
         // append the card to the today id tag on the html page. line 33. 
         $("#today").append(card);
 
-        // call follow-up api endpoints.
+        // call follow-up api endpoints. for the forecast
         getForecast(searchValue);
+        // getting the UV index. 
         getUVIndex(data.coord.lat, data.coord.lon);
       }
     });
   }
-  
+  // Calling the API for the forecast. Lines 85-90 the same as the beginning above. 
   function getForecast(searchValue) {
     $.ajax({
       type: "GET",
