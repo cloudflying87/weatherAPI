@@ -1,9 +1,67 @@
+// // Create the script tag, set the appropriate attributes
+// var script = document.createElement('script');
+// script.src = 'https://maps.googleapis.com/maps/api/js?key=AIzaSyArNwkn2NJri71A2G-nXlliiNbLzCVHyQ4&callback=initMap';
+// script.defer = true;
+// script.async = true;
+
+// // Attach your callback function to the `window` object
+// window.initMap = function () {
+//   // JS API is loaded and available
+// };
+
+// // Append the 'script' element to 'head'
+// document.head.appendChild(script);
 
 // This makes sure that the document is fully loaded before running any of our script. 
-$(document).ready(function() {
+$(document).ready(function () {
+// Creates veriables to hold the lat, long and the city
+var lat
+var lon
+var city
+
+// Runs as soon as the window is loaded
+window.onload = function () {
+
+  var startPos;
+  var geoSuccess = function (position) {
+    startPos = position;
+    // Assigns 
+    lat = startPos.coords.latitude;
+    lon = startPos.coords.longitude;
+    console.log(lat, lon)
+    findCity(lat, lon)
+  };
+  navigator.geolocation.getCurrentPosition(geoSuccess);
+
+
+};
+
+
+function findCity(lat, lon) {
+  // Here is our ajax opener. 
+  $.ajax({
+    // Or request type from the server. 
+    type: "GET",
+    // the call to the openweathermap with our own API. We are also passing in our search value from the input box above. 
+    url: "https://maps.googleapis.com/maps/api/geocode/json?latlng=" + lat + ',' + lon + "&key=AIzaSyArNwkn2NJri71A2G-nXlliiNbLzCVHyQ4",
+    // specifying what type of data will be returned from the API 
+    dataType: "json",
+    // Waiting to run our function until we have successful return from the API.
+    success: function (data) {
+      console.log(data)
+      // Pulling the formatted city data out of the Google Maps object
+      city = data.results[5].formatted_address
+      console.log(city)
+      // Bypassing the button event listener, and calls the function to search for the city 
+      searchWeather(city)
+    }
+  }
+  )
+}
+
   // Event listener for the search button. Listening for the click. 
-  $("#search-button").on("click", function() {
-    // saving the city searched for to be used in the other functions. Getting it from the input box, with the ID search value. 
+  $("#search-button").on("click", function () {
+    // saving the city searched for to be used in the other functions. Getting it from the input box, with the ID search-value. 
     var searchValue = $("#search-value").val();
 
     // clear input box. So there is no more text left once search is clicked. 
@@ -13,18 +71,18 @@ $(document).ready(function() {
     searchWeather(searchValue);
   });
   // Event listener for the history list. 
-  $(".history").on("click", "li", function() {
+  $(".history").on("click", "li", function () {
     // Using the 'this' key word to get which ever city was clicked and then passing that into the search weather function like above. 
     searchWeather($(this).text());
   });
-// using this function to be able to append cities to the list. 
+  // using this function to be able to append cities to the list. 
   function makeRow(text) {
     // This adds each city to the list by adding list items. 
     var li = $("<li>").addClass("list-group-item list-group-item-action").text(text);
     // here we append the newly made item above to the history list. 
     $(".history").append(li);
   }
-// The main seach weather function. 
+  // The main seach weather function. 
   function searchWeather(searchValue) {
     // Here is our ajax opener. 
     $.ajax({
@@ -35,7 +93,7 @@ $(document).ready(function() {
       // specifying what type of data will be returned from the API 
       dataType: "json",
       // Waiting to run our function until we have successful return from the API.
-      success: function(data) {
+      success: function (data) {
         // create history link for this search
         if (history.indexOf(searchValue) === -1) {
           // pushing the current value to the history array.
@@ -45,7 +103,7 @@ $(document).ready(function() {
           // calling our makeRow function to add the new search to the history list.  
           makeRow(searchValue);
         }
-        
+
         // clear any old content
         $("#today").empty();
 
@@ -74,20 +132,19 @@ $(document).ready(function() {
         // append the card to the today id tag on the html page. line 33. 
         $("#today").append(card);
 
-        // call follow-up api endpoints. for the forecast
+        // call follow-up api endpoints.
         getForecast(searchValue);
-        // getting the UV index. 
         getUVIndex(data.coord.lat, data.coord.lon);
       }
     });
   }
-  // Calling the API for the forecast. Lines 85-90 the same as the beginning above. 
+// same action performed for getting the intial weather lines 87-95. 
   function getForecast(searchValue) {
     $.ajax({
       type: "GET",
       url: "http://api.openweathermap.org/data/2.5/forecast?q=" + searchValue + "&appid=b5e573cd0319e4dd2a82ef44c3a32ecd&units=imperial",
       dataType: "json",
-      success: function(data) {
+      success: function (data) {
         // overwrite any existing content with title and empty row
         $("#forecast").html("<h4 class=\"mt-3\">5-Day Forecast:</h4>").append("<div class=\"row\">");
 
@@ -115,16 +172,16 @@ $(document).ready(function() {
       }
     });
   }
-
+  // same action performed for getting the intial weather lines 87-95. 
   function getUVIndex(lat, lon) {
     $.ajax({
       type: "GET",
       url: "http://api.openweathermap.org/data/2.5/uvi?appid=b5e573cd0319e4dd2a82ef44c3a32ecd&lat=" + lat + "&lon=" + lon,
       dataType: "json",
-      success: function(data) {
+      success: function (data) {
         var uv = $("<p>").text("UV Index: ");
         var btn = $("<span>").addClass("btn btn-sm").text(data.value);
-        
+
         // change color depending on uv value
         if (data.value < 3) {
           btn.addClass("btn-success");
@@ -135,17 +192,25 @@ $(document).ready(function() {
         else {
           btn.addClass("btn-danger");
         }
-        
+
         $("#today .card-body").append(uv.append(btn));
       }
     });
   }
 
+  //Delete all the search history from local storage
+  $("#clear-history").on("click", function () {
+    //To clear the history, do reset the localstorage by setting its value to 'null'
+    window.localStorage.setItem("history", null);
+    //nullify the search history array
+    history = {};
+  });
+  
   // get current history, if any
   var history = JSON.parse(window.localStorage.getItem("history")) || [];
 
   if (history.length > 0) {
-    searchWeather(history[history.length-1]);
+    searchWeather(history[history.length - 1]);
   }
 
   for (var i = 0; i < history.length; i++) {
