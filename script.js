@@ -50,7 +50,7 @@ function findCity(lat, lon) {
     success: function (data) {
       console.log(data)
       // Pulling the formatted city data out of the Google Maps object
-      city = data.results[5].formatted_address
+      city = data.results[4].formatted_address
       console.log(city)
       // Bypassing the button event listener, and calls the function to search for the city 
       searchWeather(city)
